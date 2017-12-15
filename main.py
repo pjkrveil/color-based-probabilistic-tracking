@@ -1,4 +1,3 @@
-
 import cv2
 from particle_filter import ParticleFilter
 import numpy as np

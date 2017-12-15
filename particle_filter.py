@@ -1,12 +1,10 @@
 import numpy as np
 import cv2
 
-
 def init_particles(state,n):
     particles = np.array([state,]*n)
     return particles
     
-
 def get_view(image,x,y,sq_size):
     
     # with numpy arrays this is an O(1) operation
@@ -16,8 +14,6 @@ def get_view(image,x,y,sq_size):
     return view
     
 def calc_hist(image):
-    
-
     mask = cv2.inRange(image, np.array((0., 60.,32.)), np.array((180.,255.,255.)))
     hist = cv2.calcHist([image],[0],mask,[180],[0,180])
     #hist = cv2.calcHist(image,[0,1],None,[10,10],[0,180,0,255])
@@ -25,11 +21,9 @@ def calc_hist(image):
     return hist
 
 def comp_hist(hist1,hist2):
-
     lbd = 20
     return np.exp(lbd*np.sum(hist1*hist2))
     
-
 class ParticleFilter(object):
     def __init__(self,x,y,first_frame,n_particles=1000,dt=0.04,
                     window_size=(480,640),square_size=20):
@@ -60,8 +54,7 @@ class ParticleFilter(object):
         self.hist = calc_hist(get_view(first_frame,x,y,square_size))
         
      
-    def next_state(self,frame):       
-      
+    def next_state(self,frame):         
         control_prediction = self.transition()
         control_prediction = self.filter_borders(control_prediction)
        
@@ -72,18 +65,13 @@ class ParticleFilter(object):
         self.particles = self.resample(control_prediction,weights)
         self.state = np.mean(self.particles,axis=0)
 
-
         self.last_frame = np.array(frame)
         self.n_iter += 1
         self.hist = calc_hist(get_view(frame,self.state[0],self.state[1],self.state[2]))
-        
-
-        
+                
         return int(self.state[0]),int(self.state[1]),int(self.state[2]),self.particles,control_prediction
         
-        
     def transition(self):
-
         n_state = self.state.shape[0]
         n_particles = self.particles.shape[0]   
         noises = self.std_state*np.random.randn(n_particles,n_state)
